@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-+hmfDwdZ1fvGEs74CXVKfVClze+JZlCwy0oDjGiTgTY=' 'sha256-nZBIwlsrOntXcDloxNS3D/O210bKNCDQgffMyeKuKUI='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: blob:; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>CID Waypoint · Systems Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700;800&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --night:#f6f2e3; --chart:#fbf8ee; --panel:#fffefa; --raise:#f1ecdc;
+  --contour:#c9d5e8; --margin:rgba(204,53,39,.38); --line:#e2dcc6; --paper:#1c2333; --muted:#5b6070; --dim:#8c8a7e;
+  --signal:#2346b0; --stamp:#cc3527; --sea:#2346b0; --field:#2346b0; --violet:#5e6b7d; --slate:#5e6b7d; --sun:#f2c230; --sun-ink:#b58a00;
+  --s-out:#2346b0; --s-lv:#e0a800; --s-in:#a3a7b1; --s-off:#b3a5dc; --s-wfh:#2346b0;
+  --ink-on-signal:#fff;
+  --r:10px; --r-sm:6px;
+  --f-stencil:'Bricolage Grotesque',system-ui,sans-serif;
+  --f-disp:'Bricolage Grotesque',system-ui,sans-serif;
+  --f-body:'Atkinson Hyperlegible',system-ui,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,monospace;
+  --shadow:0 10px 30px rgba(60,48,10,.14);
+  --paperbg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .34 0 0 0 0 .2 0 0 0 .09 0'/%3E%3C/filter%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .09' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .42 0 0 0 0 .26 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --night:#121826; --chart:#171e2f; --panel:#1c2438; --raise:#242d44; --contour:transparent; --margin:rgba(255,138,122,.35);
+    --line:#2f3a54; --paper:#e8eaf0; --muted:#9aa3b8; --dim:#6b7590;
+    --signal:#8fb3ff; --stamp:#ff8a7a; --sea:#8fb3ff; --field:#8fb3ff; --violet:#9aa6bd; --slate:#9aa6bd; --sun:#f2c94c; --sun-ink:#f2c94c; --ink-on-signal:#121826;
+    --s-out:#8fb3ff; --s-lv:#f2c94c; --s-in:#5f6880; --s-off:#7f71bd; --s-wfh:#8fb3ff;
+    --shadow:0 12px 36px rgba(0,0,0,.4); color-scheme:dark;
+    --paperbg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .8 0 0 0 0 .84 0 0 0 0 1 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  }
+}
+:root[data-theme="dark"]{
+  --night:#121826; --chart:#171e2f; --panel:#1c2438; --raise:#242d44; --contour:transparent; --margin:rgba(255,138,122,.35);
+  --line:#2f3a54; --paper:#e8eaf0; --muted:#9aa3b8; --dim:#6b7590;
+  --signal:#8fb3ff; --stamp:#ff8a7a; --sea:#8fb3ff; --field:#8fb3ff; --violet:#9aa6bd; --slate:#9aa6bd; --sun:#f2c94c; --sun-ink:#f2c94c; --ink-on-signal:#121826;
+  --s-out:#8fb3ff; --s-lv:#f2c94c; --s-in:#5f6880; --s-off:#7f71bd; --s-wfh:#8fb3ff;
+  --shadow:0 12px 36px rgba(0,0,0,.4); color-scheme:dark;
+  --paperbg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .8 0 0 0 0 .84 0 0 0 0 1 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--night);background-image:var(--paperbg);background-attachment:fixed;color:var(--paper);font:15px/1.5 var(--f-body);padding:24px 16px 60px}
+main{max-width:1080px;margin:0 auto}
+h1{font:800 34px/1 var(--f-disp);margin:0;letter-spacing:-.02em}
+h1 span{color:var(--signal)}
+.sub{color:var(--muted);margin:6px 0 20px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;box-shadow:var(--shadow)}
+.grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font:600 11px var(--f-mono);letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+input[type=text],input[type=password],input[type=url]{font:15px var(--f-body);color:var(--paper);background:var(--chart);border:1px solid var(--line);border-radius:6px;min-height:42px;padding:8px 10px;width:100%}
+input:focus{outline:none;border-color:var(--signal)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.chk{flex-direction:row;align-items:center;gap:8px;text-transform:none;font:15px var(--f-body);color:var(--paper);letter-spacing:0}
+.chk input{width:18px;height:18px}
+button{font:700 15px var(--f-body);border-radius:6px;min-height:42px;padding:0 16px;border:1px solid var(--line);background:var(--panel);color:var(--paper);cursor:pointer}
+button.primary{background:var(--signal);border-color:var(--signal);color:var(--ink-on-signal)}
+button[disabled]{opacity:.5;pointer-events:none}
+.hint{font-size:13px;color:var(--muted)}
+.score{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;margin:20px 0}
+.grade{width:120px;height:120px;border-radius:50%;border:3px solid var(--stamp);color:var(--stamp);display:grid;place-items:center;text-align:center;font:800 34px/1 var(--f-disp);transform:rotate(-8deg);background:var(--panel)}
+.grade small{display:block;font:600 11px var(--f-mono);letter-spacing:.1em}
+.grade.ok{border-color:var(--field);color:var(--field)}
+.bars{display:flex;gap:3px;height:12px;border-radius:3px;overflow:hidden;background:var(--chart);margin-top:8px}
+.bars i{display:block;height:100%}
+table{width:100%;border-collapse:collapse;margin-top:6px;font-size:14px}
+th{font:600 10px var(--f-mono);letter-spacing:.12em;color:var(--muted);text-align:left;padding:8px;border-bottom:2px solid var(--paper);text-transform:uppercase}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.ms{font-family:var(--f-mono);text-align:right;white-space:nowrap}
+tr.sec td{background:var(--raise);font:800 15px var(--f-disp);padding:8px}
+.pill{display:inline-block;font:600 11px var(--f-mono);letter-spacing:.08em;padding:2px 8px;border-radius:3px;min-width:52px;text-align:center}
+.PASS{background:color-mix(in srgb,var(--field) 22%,transparent);color:var(--field)}
+.FAIL{background:var(--stamp);color:#fff}
+.WARN{background:color-mix(in srgb,var(--sun) 60%,transparent);color:#3a2c00}
+.SKIP{background:var(--raise);color:var(--muted)}
+.RUN{background:var(--raise);color:var(--signal)}
+.det{color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+pre{background:var(--chart);border:1px solid var(--line);border-radius:6px;padding:10px;font:12px/1.5 var(--f-mono);max-height:260px;overflow:auto;white-space:pre-wrap}
+.tbl-wrap{overflow-x:auto}
+@media (max-width:720px){.grid{grid-template-columns:1fr}.score{grid-template-columns:1fr;justify-items:center;text-align:center}h1{font-size:28px}}
+</style>
+</head>
+<body>
+<main>
+  <h1>CID <span>Waypoint</span> · Systems Check</h1>
+  <p class="sub">Tests the Apps Script backend for reliability, speed and security. Leave the URL empty to test the built-in demo backend.</p>
+
+  <section class="card">
+    <div class="grid">
+      <label>Web App URL (…/exec)<input type="url" id="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false"></label>
+      <label>Admin passcode<input type="password" id="pass" placeholder="needed for write tests" autocomplete="off"></label>
+      <label>Viewer PIN (if set)<input type="password" id="pin" placeholder="optional" autocomplete="off"></label>
+    </div>
+    <div class="row">
+      <label class="chk"><input type="checkbox" id="writes" checked>Run write tests (creates a test person, activity, files and event, then deletes them)</label>
+      <label class="chk"><input type="checkbox" id="load" checked>Run load test (10 parallel requests + 1 MB upload)</label>
+    </div>
+    <div class="row">
+      <button class="primary" id="run">Run all checks</button>
+      <button id="copy">Copy report</button>
+      <span class="hint" id="status">Ready.</span>
+    </div>
+    <p class="hint">The wrong-passcode test uses one failed attempt. Five failures from one device lock it for 5 minutes, so don't run this more than a few times in a row.</p>
+  </section>
+
+  <div class="score" id="score" hidden>
+    <div class="grade" id="grade">—</div>
+    <div><div id="sumTxt" style="font:800 22px var(--f-disp)"></div><div class="hint" id="sumSub"></div><div class="bars" id="sumBar"></div></div>
+  </div>
+
+  <section class="card" style="margin-top:18px">
+    <div class="tbl-wrap"><table><thead><tr><th style="width:42%">Check</th><th>Result</th><th style="width:80px">Time</th><th style="width:70px">Mark</th></tr></thead><tbody id="rows"><tr><td colspan="4" class="hint">Press “Run all checks”.</td></tr></tbody></table></div>
+  </section>
+
+  <section class="card" style="margin-top:18px"><div style="font:800 18px var(--f-disp)">Raw log</div><pre id="log"></pre></section>
+</main>
+<script>
+/* CID Waypoint — DEMO backend.
+   Used only when API_URL in app.js is empty. Mirrors the Apps Script API in memory
+   so the board, admin console, uploads and printing can be tried without Google.
+   All names below are SAMPLE data. Safe to delete this file once connected. */
+(function () {
+  'use strict';
+  const TZ = 'Asia/Manila';
+  const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  const p = s => { const [y, m, d] = s.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+  const s = d => d.toISOString().slice(0, 10);
+  const add = (x, n) => { const d = p(x); d.setUTCDate(d.getUTCDate() + n); return s(d); };
+  const monday = x => add(x, -((p(x).getUTCDay() + 6) % 7));
+  const monthEnd = x => { const d = p(x.slice(0, 7) + '-01'); d.setUTCMonth(d.getUTCMonth() + 1); d.setUTCDate(0); return s(d); };
+  const uid = pre => pre + Math.random().toString(36).slice(2, 12).toUpperCase().padEnd(10, '0');
+  const fid = () => 'demo' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  const norm = x => String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const T = today();
+  const files = {};
+
+  function taSvg(no, who, where, date) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="850" height="1100" viewBox="0 0 850 1100"><rect width="850" height="1100" fill="#fbfaf6"/><rect x="40" y="40" width="770" height="1020" fill="none" stroke="#333" stroke-width="2"/><text x="425" y="110" font-family="Arial" font-size="18" text-anchor="middle">Republic of the Philippines · Department of Education</text><text x="425" y="140" font-family="Arial" font-size="22" font-weight="bold" text-anchor="middle">SAMPLE AUTHORITY TO TRAVEL</text><text x="425" y="170" font-family="Arial" font-size="16" text-anchor="middle" fill="#777">Demo document — not an official form</text><text x="90" y="260" font-family="Courier New" font-size="22">TA No.: ${no}</text><text x="90" y="310" font-family="Courier New" font-size="22">Name: ${who}</text><text x="90" y="460" font-family="Courier New" font-size="22">Purpose: Official business</text><text x="90" y="360" font-family="Courier New" font-size="22">Destination: ${where}</text><text x="90" y="410" font-family="Courier New" font-size="22">Date: ${date}</text><line x1="90" y1="900" x2="380" y2="900" stroke="#333"/><text x="235" y="930" font-family="Arial" font-size="16" text-anchor="middle">Schools Division Superintendent</text><g transform="rotate(-12 600 860)"><rect x="480" y="810" width="240" height="90" rx="8" fill="none" stroke="#c63d2b" stroke-width="5"/><text x="600" y="870" font-family="Arial Black,Arial" font-size="34" font-weight="bold" fill="#c63d2b" text-anchor="middle">APPROVED</text></g></svg>`;
+    return btoa(unescape(encodeURIComponent(svg)));
+  }
+
+  const DB = {
+    pass: 'CID2026', passDefault: true, viewerPin: '', viewerAttach: true,
+    org: 'Curriculum Implementation Division', unit: 'Personnel Whereabouts Board · SAMPLE',
+    appLogo: '', appLogoData: '', tplH: '', tplF: '', footerText: '', footerShow: true, alertPct: 50, digestTo: '', digestOn: true, boardUrl: '',
+    region: 'Region IV-A CALABARZON', division: 'Schools Division of Sample City', chief: 'Dr. Rosario M. Villanueva', chiefTitle: 'Chief Education Supervisor, CID',
+    version: String(Date.now()),
+    logos: [],
+    personnel: [
+      ['CES', 'Dr. Rosario M. Villanueva', 'Division Chief, CID', 'CID Office'],
+      ['EPS', 'Teresita A. Lumibao', 'English', 'Learning Areas'],
+      ['EPS', 'Jerome D. Sison', 'Mathematics', 'Learning Areas'],
+      ['EPS', 'Arlene M. Bautista', 'Science', 'Learning Areas'],
+      ['EPS', 'Marco P. Galvez', 'Araling Panlipunan', 'Learning Areas'],
+      ['PSDS', 'Danilo R. Ocampo', 'Buenavista & Nasipit districts', 'PSDS'],
+      ['PSDS', 'Kristine L. Manalo', 'Cabadbaran & Tubay districts', 'PSDS'],
+      ['EPS II', 'Joshua F. Dimaculangan', 'Learning Resources (LRMS)', 'LRMS'],
+      ['PDO II', 'Angelica B. Ramos', 'Alternative Learning System', 'ALS'],
+      ['ADAS III', 'Liza C. Mercado', 'Records & Travel Documents', 'CID Office']
+    ].map((r, i) => ({ id: 'P' + (1000 + i) + 'SAMPLE', position: r[0], name: r[1], assignment: r[2], unit: r[3], employeeNo: '45' + String(10230 + i * 7), contact: '0917 000 ' + String(1000 + i), notes: '', photoId: '', sortOrder: i })),
+    activities: [], events: [], audit: [],
+    fridayWfh: false, boardGroup: true, boardPin: true, officeOrder: ['CID Office', 'Learning Areas', 'PSDS', 'LRMS', 'ALS'], geoArea: '',
+    districts: [
+      ['Buenavista District', 'Buenavista', 8.9766, 125.4089], ['Cabadbaran City District', 'Cabadbaran City', 9.1235, 125.5345],
+      ['Carmen District', 'Carmen', 9.0002, 125.2675], ['Jabonga District', 'Jabonga', 9.3431, 125.5157],
+      ['Kitcharao District', 'Kitcharao', 9.4569, 125.5743], ['Las Nieves District', 'Las Nieves', 8.7353, 125.6012],
+      ['Magallanes District', 'Magallanes', 9.0223, 125.5185], ['Nasipit District', 'Nasipit', 8.9680, 125.3401],
+      ['RTR District', 'Remedios T. Romualdez', 9.0608, 125.5978], ['Santiago District', 'Santiago', 9.2643, 125.5600],
+      ['Tubay District', 'Tubay', 9.1672, 125.5222]
+    ].map((r, i) => ({ id: 'D' + (3000 + i) + 'SAMPLE', name: r[0], town: r[1], lat: r[2], lng: r[3], located: 'auto' })),
+    schools: [
+      ['San Isidro Elementary School', '131501', 'Buenavista District', 'Elementary', 8.9712, 125.4188], ['Sto. Niño National High School', '304210', 'Buenavista District', 'Secondary', 8.9801, 125.3990],
+      ['Poblacion Central School', '131502', 'Nasipit District', 'Elementary', 8.9702, 125.3431], ['Malinta Integrated School', '501230', 'Nasipit District', 'Integrated', 8.9595, 125.3555],
+      ['Libertad Elementary School', '131503', 'Carmen District', 'Elementary', 9.0041, 125.2740], ['Ampayon Central School', '131504', 'Magallanes District', 'Elementary', 9.0201, 125.5241],
+      ['Cabadbaran Central Elementary School', '131601', 'Cabadbaran City District', 'Elementary', 9.1236, 125.5345], ['Cabadbaran National High School', '304301', 'Cabadbaran City District', 'Secondary', 9.1185, 125.5402],
+      ['Calamba Elementary School', '131602', 'Tubay District', 'Elementary', 9.1652, 125.5260], ['Mabini Integrated School', '501301', 'Tubay District', 'Integrated', 9.1720, 125.5180],
+      ['Tolosa Elementary School', '131603', 'Santiago District', 'Elementary', 9.2610, 125.5641],
+      ['Buenavista Central School', '131701', 'Buenavista District', 'Elementary', 8.9762, 125.4091], ['Buenavista National High School', '304401', 'Buenavista District', 'Secondary', 8.9711, 125.4155],
+      ['Nasipit Central Elementary School', '131702', 'Nasipit District', 'Elementary', 8.9688, 125.3402], ['Talisay Integrated School', '501401', 'Carmen District', 'Integrated', 8.9942, 125.2801],
+      ['Jaliobong Elementary School', '131703', 'Kitcharao District', 'Elementary', 9.4521, 125.5712], ['Carmen Elementary School', '131704', 'Carmen District', 'Elementary', 9.0067, 125.2714],
+      ['ALS Community Learning Center — Jabonga', '', 'Jabonga District', 'ALS Learning Center', 9.3420, 125.5170]
+    ].map((r, i) => ({ id: 'S' + (2000 + i) + 'SAMPLE', name: r[0], schoolId: r[1], district: r[2], type: r[3], lat: r[4], lng: r[5] }))
+  };
+
+  const places = [
+    ['Official Travel (TA)', 'DepEd Regional Office, Calamba City', 'Regional curriculum planning workshop'],
+    ['School Monitoring / Visit', 'San Isidro Elementary School', 'Monitoring of reading intervention'],
+    ['Technical Assistance', 'Sto. Niño National High School', 'TA on lesson exemplars and LAC plan'],
+    ['Official Travel (TA)', 'Baguio City, Benguet', 'National training of trainers, MATATAG curriculum'],
+    ['Training / Workshop', 'Division Conference Hall', 'Division training on assessment tools'],
+    ['Meeting / Conference', 'Office of the SDS', 'Management Committee (ManCom) meeting'],
+    ['Leave', 'Batangas City', 'Vacation leave'],
+    ['LAC / INSET', 'Poblacion Central School', 'Facilitator, school LAC session on numeracy'],
+    ['School Monitoring / Visit', 'Malinta Integrated School', 'Class observation (RPMS-PPST)'],
+    ['In Office', 'CID Office', 'Quality assurance of learning resources'],
+    ['Technical Assistance', 'District II Office', 'TA to school heads on SIP review'],
+    ['Official Travel (TA)', 'Legazpi City, Albay', 'Benchmarking on ALS learning centers'],
+    ['School Monitoring / Visit', 'Cabadbaran Central Elementary School', 'Monitoring of MATATAG implementation'],
+    ['Technical Assistance', 'Buenavista National High School', 'TA on assessment of learning outcomes'],
+    ['School Monitoring / Visit', 'Ampayon Central School', 'Reading program monitoring'],
+    ['Technical Assistance', 'Malinta Integrated School', 'TA on school learning action cells'],
+    ['LAC / INSET', 'Tolosa Elementary School', 'Numeracy LAC session']
+  ];
+  let seed = 7;
+  const rnd = n => { seed = (seed * 9301 + 49297) % 233280; return Math.floor(seed / 233280 * n); };
+  const yearStart = T.slice(0, 4) + '-01-01';
+  DB.personnel.forEach((per, pi) => {
+    let d = add(yearStart, rnd(6));
+    let k = 0;
+    while (d <= add(T, 24) && k++ < 120) {
+      while (p(d).getUTCDay() % 6 === 0) d = add(d, 1);   // sample work starts on a weekday
+      const pl = places[(pi * 3 + rnd(places.length)) % places.length];
+      let len = pl[0] === 'Leave' ? 2 + rnd(4) : pl[0].includes('TA') ? 1 + rnd(3) : pl[0] === 'Training / Workshop' ? 2 + rnd(3) : 0;
+      if (pl[0] !== 'Official Travel (TA)') len = Math.min(len, 5 - ((p(d).getUTCDay() + 6) % 7) - 1);   // most work stops on Friday
+      const ta = pl[0].includes('TA') ? 'TA-' + T.slice(0, 4) + '-' + String(100 + rnd(800)) : '';
+      const atts = [];
+      if (ta) { const id = fid(); files[id] = { name: ta + '.svg', mime: 'image/svg+xml', data: taSvg(ta, per.name + ', ' + per.position, pl[1], d) }; atts.push({ id, name: ta + ' scan.svg', mime: 'image/svg+xml', size: 18000 }); }
+      const sch = DB.schools.find(x => x.name === pl[1]);
+      DB.activities.push({ id: uid('A'), groupId: uid('G'), personnelId: per.id, startDate: d, endDate: add(d, len), type: pl[0], location: pl[1], purpose: pl[2], details: '', taNo: ta, attachments: atts, schoolIds: sch ? [sch.id] : [], updatedAt: '' });
+      d = add(d, len + 1 + rnd(d < add(T, -21) ? 9 : 3));
+    }
+  });
+  // a shared TA across two personnel this week
+  DB.activities.push({ id: uid('A'), groupId: 'GSHARED', personnelId: DB.personnel[2].id, startDate: add(monday(T), 9), endDate: add(monday(T), 10), type: 'Official Travel (TA)', location: 'Lipa City Division Office', purpose: 'Joint QA of contextualized learning materials', details: 'With EPS Galvez', taNo: 'TA-2026-777', attachments: [], updatedAt: '' });
+  DB.events = [
+    ['Division Management Committee meeting', 1, '14:00', 'Office of the SDS', [0, 1, 2, 3], 'signal'],
+    ['Division Science Fair — judging', 3, '08:00', 'Division Gymnasium', [3, 5, 6], 'stamp'],
+    ['Training on MATATAG Grade 4 lesson plans', 8, '08:00', 'Division Conference Hall', [1, 2, 3, 4, 8], 'sea'],
+    ['Quarterly PSDS conference', 12, '09:00', 'CID Conference Room', [0, 5, 6], 'field'],
+    ['LR quality assurance session', 17, '10:00', 'LRMS Office', [7, 9, 1], 'violet']
+  ].map(e => ({ id: uid('E'), title: e[0], startDate: add(T, e[1]), endDate: add(T, e[1]), time: e[2], location: e[3], details: 'SAMPLE event', personnelIds: e[4].map(i => DB.personnel[i].id), color: e[5] }));
+
+  const bump = () => { DB.version = String(Date.now()); };
+  const log = (a, d) => DB.audit.unshift({ at: new Date().toISOString(), action: a, detail: d });
+  const err = (m, code) => ({ ok: false, error: m, code });
+  const GAZ = { buenavista: [8.9766, 125.4089], cabadbaran: [9.1235, 125.5345], carmen: [9.0002, 125.2675], jabonga: [9.3431, 125.5157], kitcharao: [9.4569, 125.5743], 'las nieves': [8.7353, 125.6012], magallanes: [9.0223, 125.5185], nasipit: [8.9680, 125.3401], 'remedios t romualdez': [9.0608, 125.5978], rtr: [9.0608, 125.5978], santiago: [9.2643, 125.5600], tubay: [9.1672, 125.5222], butuan: [8.9475, 125.5406] };
+  const geo = (name, town) => { const q = norm(town + ' ' + name).replace(/[^a-z ]/g, ' '); const k = Object.keys(GAZ).find(k => q.includes(k)); return k ? GAZ[k] : null; };
+  const locate = x => {   // demo: a school is "found" when its district has a location
+    const d = DB.districts.find(q => norm(q.name) === norm(x.district || ''));
+    if (!d || d.lat == null || /hidden|unknown/i.test(x.name)) return false;
+    let h = 0; for (const ch of x.name) h = (h * 31 + ch.charCodeAt(0)) % 1000;
+    x.lat = +(d.lat + ((h % 40) - 20) / 1000).toFixed(5); x.lng = +(d.lng + ((Math.floor(h / 40) % 40) - 20) / 1000).toFixed(5); return true;
+  };
+  const settings = () => ({ gmapsKey: DB.gmapsKey || '', gmapsMapId: DB.gmapsMapId || '', mapArea: DB.geoArea || 'Agusan del Norte', fridayWfh: DB.fridayWfh, boardGroup: DB.boardGroup, boardPin: DB.boardPin, officeOrder: DB.officeOrder.slice(), geoArea: DB.geoArea, alertPct: DB.alertPct, digestTo: DB.digestTo, digestOn: DB.digestOn, boardUrl: DB.boardUrl, footerText: DB.footerText, footerShow: DB.footerShow, appLogo: DB.appLogo, tplVer: DB.tplH + '|' + DB.tplF, orgName: DB.org, unitName: DB.unit, regionName: DB.region, divisionName: DB.division, chiefName: DB.chief, chiefTitle: DB.chiefTitle, viewerPin: !!DB.viewerPin, viewerAttach: DB.viewerAttach });
+  const tok = () => Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join('');
+  const tokens = new Set();
+
+  function range(pl) {
+    const kind = ['window', 'month', 'year'].includes(pl.kind) ? pl.kind : 'window';
+    const a = pl.anchor || T; let from, to;
+    if (kind === 'month') { from = a.slice(0, 7) + '-01'; to = monthEnd(from); }
+    else if (kind === 'year') { from = a.slice(0, 4) + '-01-01'; to = a.slice(0, 4) + '-12-31'; }
+    else { from = monday(a); to = add(from, 6); }
+    return { kind, from, to, key: kind + '_' + from };
+  }
+  function summary(from, to) {
+    const out = {};
+    DB.activities.forEach(a => {
+      if (!(a.startDate <= to && a.endDate >= from)) return;
+      const x = out[a.personnelId] || (out[a.personnelId] = { count: 0, daysOut: 0, leaveDays: 0, months: Array(12).fill(0), counts: Array(12).fill(0), byType: {}, last: null });
+      x.count++; x.byType[a.type] = (x.byType[a.type] || 0) + 1; x.counts[+a.startDate.slice(5, 7) - 1]++;
+      for (let d = a.startDate < from ? from : a.startDate, e = a.endDate > to ? to : a.endDate; d <= e; d = add(d, 1)) {
+        if (a.type === 'Leave') x.leaveDays++; else if (a.type !== 'In Office') { x.daysOut++; x.months[+d.slice(5, 7) - 1]++; }
+      }
+      if (!x.last || a.startDate > x.last.startDate) x.last = { startDate: a.startDate, location: a.location, type: a.type };
+    });
+    return out;
+  }
+  const clone = o => JSON.parse(JSON.stringify(o));
+
+  const warn = (from, to, pids) => !window.CWShared ? [] : window.CWShared.computeAlerts(DB.personnel, DB.activities.filter(a => a.startDate <= to && a.endDate >= from), DB.events, from, to, DB.alertPct)
+    .filter(a => pids.includes(a.pid) || (a.pids || []).some(x => pids.includes(x))).slice(0, 12);
+  const H = {
+    ping: () => ({ ok: true, app: 'CID Waypoint (demo)' }),
+    login: pl => pl.passcode === DB.pass ? (t => (tokens.add(t), { ok: true, token: t, mustChange: DB.passDefault }))(tok()) : err('Wrong passcode.'),
+    viewerLogin: pl => !DB.viewerPin || pl.pin === DB.viewerPin ? { ok: true, vtoken: tok() } : err('Wrong PIN.'),
+    logout: (pl, admin, token) => { tokens.delete(token); return { ok: true }; },
+    session: () => ({ ok: true, mustChange: DB.passDefault }),
+    boot: pl => {
+      const r = range(pl);
+      if (pl.version && pl.version === DB.version) return { ok: true, notModified: true, version: DB.version };
+      const out = { ok: true, version: DB.version, today: T, range: r, settings: settings(), logos: DB.logos, personnel: DB.personnel.slice().sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name)) };
+      if (r.kind === 'year') out.summary = summary(r.from, r.to);
+      else out.activities = DB.activities.filter(a => a.startDate <= r.to && a.endDate >= r.from);
+      const hz = add(r.to > T ? r.to : T, 30);
+      out.events = DB.events.filter(e => e.endDate >= r.from && e.startDate <= hz);
+      return out;
+    },
+    activities: pl => (pl.to < pl.from ? err('Pick a range of up to 400 days.') : { ok: true, activities: DB.activities.filter(a => a.startDate <= pl.to && a.endDate >= pl.from && (!pl.personnelId || a.personnelId === pl.personnelId)).sort((a, b) => b.startDate.localeCompare(a.startDate)) }),
+    events: pl => ({ ok: true, events: DB.events.filter(e => e.endDate >= pl.from && e.startDate <= pl.to) }),
+    search: pl => {
+      const toks = norm(pl.q).split(/\s+/).filter(Boolean); const by = {}; DB.personnel.forEach(x => by[x.id] = x);
+      const hit = h => { h = norm(h); return toks.every(t => h.includes(t)); };
+      return { ok: true, personnel: DB.personnel.filter(x => hit([x.position, x.name, x.employeeNo, x.assignment, x.unit].join(' '))), activities: DB.activities.filter(a => { const x = by[a.personnelId] || {}; return hit([a.location, a.purpose, a.details, a.taNo, a.type, a.startDate, x.position, x.name, x.assignment, x.unit].join(' ')); }).sort((a, b) => b.startDate.localeCompare(a.startDate)).slice(0, 150) };
+    },
+    attachment: (pl, admin) => {
+      if (!admin && !DB.viewerAttach) return err('Attachments are restricted to admin.', 'ATTACH_LOCKED');
+      if (!DB.activities.some(a => (a.attachments || []).some(x => x.id === pl.id))) return err('File not found.');
+      const f = files[pl.id]; return f ? { ok: true, name: f.name, mime: f.mime, data: f.data } : err('File not found.');
+    },
+    savePersonnel: pl => {
+      if (!String(pl.name || '').trim()) return err('Name is required.');
+      if (pl.id && !DB.personnel.some(q => q.id === pl.id)) return err('Personnel not found.');
+      let x = pl.id && DB.personnel.find(q => q.id === pl.id);
+      if (!x) { x = { id: uid('P'), photoId: '' }; DB.personnel.push(x); }
+      Object.assign(x, { position: pl.position || '', name: pl.name.trim(), employeeNo: pl.employeeNo || '', assignment: pl.assignment || '', unit: pl.unit || '', contact: pl.contact || '', notes: pl.notes || '', sortOrder: pl.sortOrder !== undefined ? +pl.sortOrder || 0 : x.sortOrder != null ? x.sortOrder : DB.personnel.reduce((m, q) => Math.max(m, +q.sortOrder || 0), 0) + 1 });
+      if (pl.photoLink) x.photoId = (String(pl.photoLink).match(/\/d\/([\w-]{20,})/) || String(pl.photoLink).match(/[?&]id=([\w-]{20,})/) || [])[1] || x.photoId;
+      log('savePersonnel', x.name); bump(); return { ok: true, person: x };
+    },
+    deletePersonnel: pl => { DB.personnel = DB.personnel.filter(x => x.id !== pl.id); if (pl.withLogs) DB.activities = DB.activities.filter(a => a.personnelId !== pl.id); log('deletePersonnel', pl.id); bump(); return { ok: true }; },
+    setPhoto: pl => { const x = DB.personnel.find(q => q.id === pl.personnelId); if (!x) return err('Personnel not found.'); x.photoId = pl.file ? 'data:' + pl.file.mime + ';base64,' + pl.file.data : ((String(pl.link).match(/\/d\/([\w-]{20,})/) || [])[1] || ''); bump(); return { ok: true, photoId: x.photoId }; },
+    upload: pl => {
+      const f = pl.file || {}; const bin = atob(f.data || '');
+      const sig = { 'application/pdf': bin.startsWith('%PDF'), 'image/jpeg': bin.charCodeAt(0) === 0xFF && bin.charCodeAt(1) === 0xD8, 'image/png': bin.startsWith('\x89PNG'), 'image/webp': bin.startsWith('RIFF') };
+      if (!(f.mime in sig)) return err('File type not allowed. Use PDF, JPG, PNG or WEBP.');
+      if (!sig[f.mime]) return err('File content does not match its type.');
+      if (!pl.stage && !(pl.personnelIds || []).length) return err('Select personnel before uploading.');
+      const id = fid(); files[id] = { name: pl.file.name, mime: pl.file.mime, data: pl.file.data }; return { ok: true, file: { id, name: (pl.date || T) + '_' + (pl.taNo || 'DOC') + '_' + pl.file.name, mime: pl.file.mime, size: Math.round(pl.file.data.length * .75) } }; },
+    saveActivity: pl => {
+      if (!pl.startDate || !pl.location) return err('Dates and whereabouts are required.');
+      const base = { startDate: pl.startDate, endDate: pl.endDate || pl.startDate, type: pl.type, location: pl.location, purpose: pl.purpose || '', details: pl.details || '', taNo: pl.taNo || '', attachments: pl.attachments || [], schoolIds: (pl.schoolIds || []).filter(id => DB.schools.some(x => x.id === id)), districtIds: (pl.districtIds || []).filter(id => DB.districts.some(x => x.id === id)), updatedAt: new Date().toISOString() };
+      if (base.endDate < base.startDate) return err('End date is before start date.');
+      if (pl.id) { const a = DB.activities.find(q => q.id === pl.id); if (!a) return err('Activity not found.'); Object.assign(a, base, { personnelId: (pl.personnelIds || [])[0] || a.personnelId }); bump(); return { ok: true, ids: [a.id], warnings: warn(base.startDate, base.endDate, [a.personnelId]) }; }
+      if (!(pl.personnelIds || []).length) return err('Select at least one personnel.');
+      const g = uid('G'); const ids = pl.personnelIds.map(pid => { const a = Object.assign({ id: uid('A'), groupId: g, personnelId: pid }, clone(base)); DB.activities.push(a); return a.id; });
+      log('addActivity', pl.location); bump(); return { ok: true, ids, warnings: warn(base.startDate, base.endDate, pl.personnelIds) };
+    },
+    deleteActivity: pl => { const a = DB.activities.find(q => q.id === pl.id); if (!a) return err('Activity not found.'); DB.activities = DB.activities.filter(q => pl.wholeGroup ? q.groupId !== a.groupId : q.id !== a.id); bump(); return { ok: true }; },
+    saveEvent: pl => {
+      if (!pl.title) return err('Title is required.');
+      let e = pl.id && DB.events.find(q => q.id === pl.id);
+      if (!e) { e = { id: uid('E') }; DB.events.push(e); }
+      Object.assign(e, { title: pl.title, startDate: pl.startDate, endDate: pl.endDate || pl.startDate, time: pl.time || '', location: pl.location || '', details: pl.details || '', personnelIds: pl.personnelIds || [], color: pl.color || 'signal' });
+      bump(); return { ok: true, event: e, warnings: warn(e.startDate, e.endDate, e.personnelIds) };
+    },
+    deleteEvent: pl => { DB.events = DB.events.filter(e => e.id !== pl.id); bump(); return { ok: true }; },
+    saveLogo: pl => { if (DB.logos.length >= 6) return err('Up to 6 logos only.'); DB.logos.push({ id: uid('L'), name: pl.name || 'Logo', fileId: pl.file ? 'data:' + pl.file.mime + ';base64,' + pl.file.data : ((String(pl.link).match(/\/d\/([\w-]{20,})/) || String(pl.link).match(/[?&]id=([\w-]{20,})/) || [])[1] || '') }); bump(); return { ok: true }; },
+    deleteLogo: pl => { DB.logos = DB.logos.filter(l => l.id !== pl.id); bump(); return { ok: true }; },
+    saveSettings: pl => {
+      if (pl.fridayWfh !== undefined) DB.fridayWfh = !!pl.fridayWfh;
+      if (pl.gmapsKey !== undefined) { if (pl.gmapsKey && !/^[A-Za-z0-9_-]{30,60}$/.test(pl.gmapsKey)) return err('That does not look like a Google Maps API key (it starts with "AIza").'); DB.gmapsKey = pl.gmapsKey; }
+      if (pl.gmapsMapId !== undefined) DB.gmapsMapId = pl.gmapsMapId;
+      if (pl.geoArea !== undefined) DB.geoArea = String(pl.geoArea).slice(0, 120);
+      if (pl.alertPct !== undefined) DB.alertPct = Math.max(10, Math.min(100, parseInt(pl.alertPct, 10) || 50));
+      if (pl.digestTo !== undefined) { const l = String(pl.digestTo).split(/[\s,;]+/).filter(Boolean); const bad = l.find(x => !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x)); if (bad) return err('Not an email address: ' + bad); DB.digestTo = l.join(', '); }
+      if (pl.digestOn !== undefined) DB.digestOn = !!pl.digestOn;
+      if (pl.boardUrl !== undefined) DB.boardUrl = pl.boardUrl;
+      if (pl.footerText !== undefined) DB.footerText = String(pl.footerText).split(/\r?\n/).slice(0, 6).join('\n'); if (pl.footerShow !== undefined) DB.footerShow = !!pl.footerShow;
+      if (pl.orgName !== undefined) DB.org = pl.orgName; if (pl.unitName !== undefined) DB.unit = pl.unitName;
+      if (pl.regionName !== undefined) DB.region = pl.regionName; if (pl.divisionName !== undefined) DB.division = pl.divisionName;
+      if (pl.chiefName !== undefined) DB.chief = pl.chiefName; if (pl.chiefTitle !== undefined) DB.chiefTitle = pl.chiefTitle;
+      if (pl.viewerAttach !== undefined) DB.viewerAttach = !!pl.viewerAttach;
+      if (pl.viewerPin === '__off__') DB.viewerPin = ''; else if (pl.viewerPin) { if (pl.viewerPin.length < 4) return err('Viewer PIN must be 4–32 characters.'); DB.viewerPin = pl.viewerPin; }
+      bump(); return { ok: true, settings: settings() };
+    },
+    changePasscode: pl => {
+      if (pl.current !== DB.pass) return err('Current passcode is wrong.');
+      if (!pl.next || pl.next.length < 6) return err('New passcode must be 6–64 characters.');
+      if (pl.next === 'CID2026') return err('Choose a passcode different from the default.');
+      DB.pass = pl.next; DB.passDefault = false; tokens.clear(); const t = tok(); tokens.add(t); return { ok: true, token: t };
+    },
+    exportSummary: () => ({ ok: true, demo: true }),
+    sendDigest: pl => { if (!(pl.to || DB.digestTo)) return err('Add at least one recipient first.'); return { ok: true, demo: true, sentTo: pl.to || DB.digestTo }; },
+    districts: () => ({ ok: true, districts: DB.districts }),
+    saveDistrict: pl => {
+      const name = String(pl.name || '').trim(); if (!name) return err('District name is required.');
+      if (DB.districts.some(d => d.id !== pl.id && norm(d.name) === norm(name))) return err('A district with that name already exists.');
+      let d = pl.id && DB.districts.find(q => q.id === pl.id); if (pl.id && !d) return err('District not found.');
+      const isNew = !d; if (!d) { d = { id: uid('D'), lat: null, lng: null, located: 'none' }; DB.districts.push(d); }
+      const moved = isNew || d.name !== name || (d.town || '') !== (pl.town || '') || pl.relocate;
+      if (!isNew && norm(d.name) !== norm(name)) { const n = DB.schools.filter(x => norm(x.district) === norm(d.name)); n.forEach(x => { x.district = name; }); if (n.length) pl.__moved = n.length; }
+      Object.assign(d, { name, town: String(pl.town || '').trim() });
+      let message;
+      const m = String(pl.coords || '').match(/^\s*(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)\s*$/);
+      if (pl.coords && !m) return err('Location must be “latitude, longitude”, e.g. 8.9766, 125.4089.');
+      if (m) { Object.assign(d, { lat: +m[1], lng: +m[2], located: 'manual' }); message = 'Saved with the location you set.'; }
+      else if (moved) { const g = geo(d.name, d.town); if (g) { Object.assign(d, { lat: g[0], lng: g[1], located: 'auto' }); message = 'Saved and found on the map.'; } else { Object.assign(d, { lat: null, lng: null, located: 'none' }); message = 'Saved, but it was not found on the map. Add the town, or set the location by hand.'; } }
+      else message = 'Saved.';
+      if (pl.__moved) message += ' ' + pl.__moved + ' school' + (pl.__moved > 1 ? 's' : '') + ' moved to the new name.';
+      bump(); return { ok: true, district: d, message };
+    },
+    deleteDistrict: pl => {
+      const ids = [].concat(pl.ids || [], pl.id || []), gone = DB.districts.filter(d => ids.includes(d.id));
+      if (!gone.length) return err('District not found.');
+      DB.districts = DB.districts.filter(d => !ids.includes(d.id));
+      let schools = 0;
+      if (pl.withSchools) { const names = gone.map(d => norm(d.name)); const before = DB.schools.length; DB.schools = DB.schools.filter(x => !names.includes(norm(x.district))); schools = before - DB.schools.length; }
+      bump(); return { ok: true, removed: gone.length, schools };
+    },
+    importDistricts: pl => {
+      let added = 0; const notFound = [], fresh = [];
+      (pl.rows || []).slice(0, 80).forEach(r => { const name = String(r.name || '').trim(); if (!name || DB.districts.some(d => norm(d.name) === norm(name))) return; const g = geo(name, r.town || ''); const rec = { id: uid('D'), name, town: r.town || '', lat: g ? g[0] : null, lng: g ? g[1] : null, located: g ? 'auto' : 'none' }; DB.districts.push(rec); fresh.push(rec); added++; if (!g) notFound.push(name); });
+      bump(); return { ok: true, added, notFound, districts: fresh };
+    },
+    saveOrder: pl => {
+      if (Array.isArray(pl.officeOrder)) DB.officeOrder = pl.officeOrder.map(String).slice(0, 60);
+      if (pl.boardGroup !== undefined) DB.boardGroup = !!pl.boardGroup; if (pl.boardPin !== undefined) DB.boardPin = !!pl.boardPin;
+      (pl.people || []).forEach(r => { const x = DB.personnel.find(q => q.id === r.id); if (x) x.sortOrder = +r.sortOrder || 0; });
+      DB.personnel.sort((a, b) => a.sortOrder - b.sortOrder);
+      bump(); return { ok: true, settings: settings() };
+    },
+    schools: () => ({ ok: true, schools: DB.schools }),
+    saveSchool: pl => {
+      if (!String(pl.name || '').trim()) return err('School name is required.');
+      let x = pl.id && DB.schools.find(q => q.id === pl.id); if (pl.id && !x) return err('School not found.');
+      if (!x) { x = { id: uid('S') }; DB.schools.push(x); }
+      const num = v => (v === '' || v == null || !isFinite(parseFloat(v))) ? null : parseFloat(v);
+      Object.assign(x, { name: pl.name.trim(), schoolId: pl.schoolId || '', district: pl.district || '', type: pl.type || '', lat: num(pl.lat), lng: num(pl.lng) });
+      let message = 'Saved.';
+      if (x.lat == null && pl.locate !== false) message = locate(x) ? 'Saved and found on the map.' : 'Saved. Not found on the map — it is shown at its district. Add latitude/longitude to place it exactly.';
+      bump(); return { ok: true, school: x, message };
+    },
+    deleteSchool: pl => { const ids = [].concat(pl.ids || [], pl.id || []); const n = DB.schools.length; DB.schools = DB.schools.filter(x => !ids.includes(x.id)); if (n === DB.schools.length) return err('School not found.'); bump(); return { ok: true, removed: n - DB.schools.length }; },
+    locateSchools: pl => { const found = [], notFound = []; DB.schools.filter(x => (pl.ids || []).slice(0, 10).includes(x.id) && x.lat == null).forEach(x => locate(x) ? found.push({ id: x.id, lat: x.lat, lng: x.lng }) : notFound.push(x.id)); if (found.length) bump(); return { ok: true, found, notFound }; },
+    importSchools: pl => { let added = 0, updated = 0; (pl.rows || []).forEach(r => { const ex = DB.schools.find(x => (r.schoolId && x.schoolId === r.schoolId) || (x.name === r.name && x.district === r.district)); const num = v => (v === '' || !isFinite(parseFloat(v))) ? null : parseFloat(v); const rec = { name: r.name, schoolId: r.schoolId, district: r.district, type: r.type, lat: num(r.lat), lng: num(r.lng) }; if (ex) { Object.assign(ex, rec); updated++; } else { DB.schools.push(Object.assign({ id: uid('S') }, rec)); added++; } }); bump(); return { ok: true, added, updated }; },
+    appLogo: () => ({ ok: true, id: DB.appLogo, data: DB.appLogoData }),
+    saveAppLogo: pl => { if (pl.remove) { DB.appLogo = ''; DB.appLogoData = ''; } else { DB.appLogo = fid(); DB.appLogoData = 'data:' + pl.file.mime + ';base64,' + pl.file.data; } bump(); return { ok: true, id: DB.appLogo }; },
+    template: () => ({ ok: true, header: DB.tplHData || '', footer: DB.tplFData || '' }),
+    saveTemplate: pl => { const k = pl.part === 'footer' ? 'tplF' : 'tplH'; DB[k] = pl.reset ? '' : fid(); DB[k + 'Data'] = pl.reset ? '' : 'data:' + pl.file.mime + ';base64,' + pl.file.data; bump(); return { ok: true, id: DB[k] }; },
+    audit: () => ({ ok: true, rows: DB.audit.slice(0, 200) })
+  };
+
+  window.Mock = {
+    call(action, payload, token) {
+      const admin = !!token && tokens.has(token);
+      const ADMIN = ['locateSchools', 'saveDistrict', 'deleteDistrict', 'importDistricts', 'saveOrder', 'sendDigest', 'saveSchool', 'deleteSchool', 'importSchools', 'saveAppLogo', 'saveTemplate', 'savePersonnel', 'deletePersonnel', 'setPhoto', 'upload', 'saveActivity', 'deleteActivity', 'saveEvent', 'deleteEvent', 'saveLogo', 'deleteLogo', 'saveSettings', 'changePasscode', 'exportSummary', 'audit', 'session'];
+      if (ADMIN.includes(action) && !admin) return err('Admin session expired. Sign in again.', 'AUTH');
+      const h = H[action];
+      if (!h) return err('Unknown action.');
+      return clone(h(payload || {}, admin, token));
+    }
+  };
+})();
+</script>
+<script>
+(function () {
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const T = { token: '', vtoken: '', cid: 'systest-' + Math.random().toString(36).slice(2, 10) };
+const results = [];
+let URL_ = '';
+
+try { $('#url').value = localStorage.getItem('cwt:url') || ''; } catch (e) {}
+
+async function call(action, payload = {}, opt = {}) {
+  const t0 = performance.now();
+  let r;
+  if (!URL_) { await sleep(5); r = window.Mock.call(action, JSON.parse(JSON.stringify(payload)), opt.token !== undefined ? opt.token : T.token); }
+  else {
+    const body = JSON.stringify({ action, payload, token: opt.token !== undefined ? opt.token : T.token, vtoken: T.vtoken, cid: opt.cid || T.cid });
+    const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), opt.timeout || 90000);
+    try {
+      const res = await fetch(URL_, { method: 'POST', body, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', credentials: 'omit', signal: ctl.signal });
+      const txt = await res.text();
+      try { r = JSON.parse(txt); } catch (e) { r = { ok: false, error: 'Not JSON (is the deployment access set to "Anyone"?): ' + txt.slice(0, 120) }; }
+    } catch (e) { r = { ok: false, error: e.name === 'AbortError' ? 'timed out' : 'network error: ' + e.message }; }
+    clearTimeout(to);
+  }
+  const ms = Math.round(performance.now() - t0);
+  log(`${action} ${ms}ms → ${JSON.stringify(r).slice(0, 220)}`);
+  return Object.assign({ _ms: ms }, r);
+}
+function log(s) { const el = $('#log'); el.textContent += s + '\n'; el.scrollTop = el.scrollHeight; }
+
+function section(name) { results.push({ sec: name }); draw(); }
+async function check(name, fn) {
+  const row = { name, mark: 'RUN', det: '', ms: '' }; results.push(row); draw();
+  try {
+    const out = await fn();
+    row.mark = out.mark || 'PASS'; row.det = out.det || ''; row.ms = out.ms != null ? out.ms : '';
+  } catch (e) { row.mark = 'FAIL'; row.det = e.message || String(e); }
+  draw();
+  return row.mark;
+}
+const skip = (name, why) => { results.push({ name, mark: 'SKIP', det: why, ms: '' }); draw(); };
+function must(c, msg) { if (!c) throw new Error(msg); }
+function draw() {
+  $('#rows').innerHTML = results.map(r => r.sec ? `<tr class="sec"><td colspan="4">${esc(r.sec)}</td></tr>`
+    : `<tr><td>${esc(r.name)}</td><td class="det">${esc(r.det)}</td><td class="ms">${r.ms === '' ? '' : esc(r.ms) + ' ms'}</td><td><span class="pill ${r.mark}">${r.mark}</span></td></tr>`).join('');
+}
+function summary() {
+  const rs = results.filter(r => !r.sec);
+  const n = k => rs.filter(r => r.mark === k).length;
+  const pass = n('PASS'), fail = n('FAIL'), warn = n('WARN'), skp = n('SKIP');
+  const graded = pass + fail + warn;
+  const pct = graded ? Math.round((pass + warn * .5) / graded * 100) : 0;
+  $('#score').hidden = false;
+  const g = $('#grade'); g.className = 'grade' + (fail ? '' : ' ok');
+  g.innerHTML = `${pct}<small>${fail ? 'NEEDS ATTENTION' : 'PASSED'}</small>`;
+  $('#sumTxt').textContent = `${pass} passed · ${fail} failed · ${warn} warnings · ${skp} skipped`;
+  $('#sumSub').textContent = (URL_ ? URL_.replace(/\/s\/(.{6}).*\/exec/, '/s/$1…/exec') : 'Demo backend (in-page)') + ' · ' + new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
+  const w = x => (x / Math.max(1, rs.length) * 100) + '%';
+  $('#sumBar').innerHTML = `<i style="width:${w(pass)};background:var(--field)"></i><i style="width:${w(warn)};background:var(--sun)"></i><i style="width:${w(fail)};background:var(--stamp)"></i><i style="width:${w(skp)};background:var(--line)"></i>`;
+}
+const pct = (arr, p) => { const a = arr.slice().sort((x, y) => x - y); return a[Math.min(a.length - 1, Math.floor(p / 100 * a.length))]; };
+const speed = (ms, good, ok) => ms <= good ? 'PASS' : ms <= ok ? 'WARN' : 'FAIL';
+const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+const b64 = u8 => { let s = ''; for (let i = 0; i < u8.length; i += 32768) s += String.fromCharCode.apply(null, u8.subarray(i, i + 32768)); return btoa(s); };
+const ascii = s => new TextEncoder().encode(s);
+async function pngBytes(w, h, noisy) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
+  if (noisy) { const d = x.createImageData(w, h); for (let i = 0; i < d.data.length; i++) d.data[i] = (Math.random() * 256) | 0; x.putImageData(d, 0, 0); }
+  else { x.fillStyle = '#f3ecc8'; x.fillRect(0, 0, w, h); x.fillStyle = '#2346b0'; x.font = 'bold 28px sans-serif'; x.fillText('CID WAYPOINT TEST', 20, 60); }
+  const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+  return new Uint8Array(await blob.arrayBuffer());
+}
+
+async function run() {
+  URL_ = $('#url').value.trim();
+  if (URL_ && !/^https:\/\/script\.google(usercontent)?\.com\/.+/.test(URL_)) { $('#status').textContent = 'That is not an Apps Script URL.'; return; }
+  try { localStorage.setItem('cwt:url', URL_); } catch (e) {}
+  results.length = 0; $('#log').textContent = ''; $('#run').disabled = true; $('#score').hidden = true;
+  $('#status').textContent = 'Running…';
+  const PASS = $('#pass').value || (URL_ ? '' : 'CID2026');
+  const tag = 'ZZT' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  const T0 = today();
+
+  /* ---------- connection & speed ---------- */
+  section('1 · Connection & speed');
+  let up = await check('Server answers (ping)', async () => { const r = await call('ping'); must(r.ok, r.error); return { det: r.app || 'ok', ms: r._ms, mark: speed(r._ms, 2500, 6000) }; });
+  if (up === 'FAIL') { skip('Everything else', 'Server unreachable — fix the URL or deployment first.'); return done(); }
+  if ($('#pin').value) await check('Viewer PIN unlock', async () => { const r = await call('viewerLogin', { pin: $('#pin').value }); must(r.ok, r.error); T.vtoken = r.vtoken; return { det: 'unlocked', ms: r._ms }; });
+  let ver = '';
+  await check('Load the weekly board (boot)', async () => {
+    const r = await call('boot', { kind: 'window', anchor: T0 });
+    if (r.code === 'VIEWER_PIN') throw new Error('Board is locked — enter the viewer PIN above.');
+    must(r.ok, r.error); must(Array.isArray(r.personnel) && Array.isArray(r.activities), 'missing arrays'); ver = r.version;
+    return { det: `${r.personnel.length} personnel · ${r.activities.length} activities · ${(r.events || []).length} events`, ms: r._ms, mark: speed(r._ms, 3000, 8000) };
+  });
+  await check('Repeat load answers “not modified” (cache)', async () => { const r = await call('boot', { kind: 'window', anchor: T0, version: ver }); must(r.ok, r.error); must(r.notModified, 'full payload returned again'); return { det: 'cached', ms: r._ms, mark: speed(r._ms, 1500, 4000) }; });
+  await check('Month view', async () => { const r = await call('boot', { kind: 'month', anchor: T0 }); must(r.ok && Array.isArray(r.activities), r.error || 'no activities'); return { det: r.activities.length + ' activities', ms: r._ms, mark: speed(r._ms, 3000, 8000) }; });
+  await check('Year summary', async () => { const r = await call('boot', { kind: 'year', anchor: T0 }); must(r.ok && r.summary && typeof r.summary === 'object', r.error || 'no summary'); return { det: Object.keys(r.summary).length + ' personnel with records', ms: r._ms, mark: speed(r._ms, 4000, 10000) }; });
+  await check('Search all records', async () => { const r = await call('search', { q: 'a' }); must(r.ok && Array.isArray(r.activities), r.error); return { det: `${r.personnel.length} personnel · ${r.activities.length} activities`, ms: r._ms, mark: speed(r._ms, 3000, 8000) }; });
+  await check('Districts list (coverage map)', async () => { const r = await call('districts'); must(r.ok && Array.isArray(r.districts), r.error || 'run setup again to create the Districts tab'); const xy = r.districts.filter(x => x.lat !== '' && x.lat != null).length, chk = r.districts.filter(x => x.located === 'check' || x.located === 'none').length; return { det: `${r.districts.length} districts · ${xy} on the map${chk ? ' · ' + chk + ' need a location check' : ''}`, ms: r._ms, mark: !r.districts.length || chk ? 'WARN' : 'PASS' }; });
+  await check('Schools list (optional)', async () => { const r = await call('schools'); must(r.ok && Array.isArray(r.schools), r.error); const xy = r.schools.filter(x => x.lat != null).length; return { det: `${r.schools.length} schools · ${xy} with map coordinates`, ms: r._ms, mark: 'PASS' }; });
+  await check('Calendar events (60 days)', async () => { const r = await call('events', { from: T0 }); must(r.ok && Array.isArray(r.events), r.error); return { det: r.events.length + ' events', ms: r._ms }; });
+
+  /* ---------- security ---------- */
+  section('2 · Security');
+  await check('Write without signing in is refused', async () => { const r = await call('savePersonnel', { name: 'should not exist' }, { token: '' }); must(!r.ok && r.code === 'AUTH', 'write was accepted!'); return { det: r.error, ms: r._ms }; });
+  await check('Forged session token is refused', async () => { const fake = Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join(''); const r = await call('audit', {}, { token: fake }); must(!r.ok && r.code === 'AUTH', 'forged token accepted!'); return { det: r.error, ms: r._ms }; });
+  await check('Wrong passcode is refused (uses 1 attempt)', async () => { const r = await call('login', { passcode: 'wrong-' + tag }, { cid: T.cid + '-bad' }); must(!r.ok, 'wrong passcode accepted!'); return { det: r.error, ms: r._ms, mark: r._ms < 400 && URL_ ? 'WARN' : 'PASS' }; });
+  await check('Unknown attachment id cannot be read', async () => { const r = await call('attachment', { id: '1'.repeat(33) }); must(!r.ok, 'arbitrary file was served!'); return { det: r.error, ms: r._ms }; });
+  await check('Bad date range is rejected', async () => { const r = await call('activities', { from: '2026-12-31', to: '2026-01-01' }); must(!r.ok, 'accepted'); return { det: r.error, ms: r._ms }; });
+  await check('Garbage request handled cleanly', async () => { const r = await call('dropTables', { x: 1 }); must(!r.ok, 'unknown action accepted'); return { det: r.error, ms: r._ms }; });
+
+  /* ---------- write round-trip ---------- */
+  section('3 · Database round-trip (writes, then cleans up)');
+  const W = { pid: '', aid: '', eid: '', files: [] };
+  if (!$('#writes').checked) skip('Write tests', 'turned off');
+  else if (!PASS) skip('Write tests', 'enter the admin passcode to run them');
+  else {
+    const li = await check('Admin sign-in', async () => { const r = await call('login', { passcode: PASS }); must(r.ok, r.error); T.token = r.token; return { det: r.mustChange ? 'signed in — still using the DEFAULT passcode, change it' : 'signed in', ms: r._ms, mark: r.mustChange ? 'WARN' : 'PASS' }; });
+    if (li !== 'FAIL') {
+      await check('Session is recognised', async () => { const r = await call('session'); must(r.ok, r.error); return { ms: r._ms }; });
+      await check('Add test personnel (formula-looking name stored as text)', async () => {
+        const r = await call('savePersonnel', { name: '=SUM(1,1) ' + tag, position: 'EPS', assignment: 'Systems check', unit: 'TEST' });
+        must(r.ok, r.error); W.pid = r.person.id; return { det: W.pid, ms: r._ms };
+      });
+      await check('Fake PDF (wrong file signature) is rejected', async () => { const r = await call('upload', { file: { name: 'evil.pdf', mime: 'application/pdf', data: b64(ascii('MZ not a pdf')) }, personnelIds: [W.pid], date: T0 }); must(!r.ok, 'disguised file accepted!'); return { det: r.error, ms: r._ms }; });
+      const pdf = ascii('%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj 3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 200]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF ' + tag);
+      await check('Upload a PDF to the personnel month folder', async () => { const r = await call('upload', { file: { name: 'test.pdf', mime: 'application/pdf', data: b64(pdf) }, personnelIds: [W.pid], date: T0, taNo: tag }, { timeout: 120000 }); must(r.ok, r.error); W.files.push(r.file); W.pdfId = r.file.id; return { det: r.file.name, ms: r._ms, mark: speed(r._ms, 5000, 15000) }; });
+      await check('Upload a PNG', async () => { const png = await pngBytes(400, 200); const r = await call('upload', { file: { name: 'test.png', mime: 'image/png', data: b64(png) }, personnelIds: [W.pid], date: T0, taNo: tag }, { timeout: 120000 }); must(r.ok, r.error); W.files.push(r.file); return { det: (png.length / 1024).toFixed(1) + ' KB', ms: r._ms, mark: speed(r._ms, 5000, 15000) }; });
+      if ($('#load').checked) await check('Upload speed (≈1 MB file)', async () => {
+        const big = await pngBytes(512, 512, true);
+        const r = await call('upload', { file: { name: 'speed.png', mime: 'image/png', data: b64(big) }, personnelIds: [W.pid], date: T0, taNo: tag }, { timeout: 180000 });
+        must(r.ok, r.error); W.files.push(r.file);
+        const kbs = big.length / 1024 / (r._ms / 1000);
+        return { det: `${(big.length / 1048576).toFixed(2)} MB at ${kbs.toFixed(0)} KB/s (photos are compressed to ~300 KB before upload)`, ms: r._ms, mark: speed(r._ms, 12000, 30000) };
+      });
+      await check('Instant upload (staged, filed on save)', async () => {
+        const png = await pngBytes(300, 120);
+        const r = await call('upload', { file: { name: 'instant.png', mime: 'image/png', data: b64(png) }, stage: true }, { timeout: 120000 });
+        must(r.ok, r.error); W.files.push(r.file); return { det: 'staged in ' + r._ms + ' ms', ms: r._ms, mark: speed(r._ms, 4000, 12000) };
+      });
+      await check('Save activity with attachments', async () => {
+        const r = await call('saveActivity', { personnelIds: [W.pid], startDate: T0, endDate: T0, type: 'School Monitoring / Visit', location: 'Systems Check School ' + tag, purpose: 'Automated test', taNo: tag, attachments: W.files });
+        must(r.ok, r.error); W.aid = r.ids[0]; return { det: W.aid, ms: r._ms };
+      });
+      await check('Board shows the new activity immediately', async () => {
+        const r = await call('boot', { kind: 'window', anchor: T0, version: ver });
+        must(r.ok && !r.notModified, 'board did not refresh after a write');
+        const a = r.activities.find(x => x.id === W.aid); must(a, 'activity missing');
+        const p = r.personnel.find(x => x.id === W.pid); must(p && p.name === '=SUM(1,1) ' + tag, 'name changed: ' + (p && p.name));
+        return { det: 'found · name kept as plain text', ms: r._ms };
+      });
+      await check('Search finds it', async () => { const r = await call('search', { q: tag }); must(r.ok && r.activities.some(a => a.id === W.aid), 'not found'); return { ms: r._ms }; });
+      await check('Attachment downloads byte-for-byte', async () => {
+        const r = await call('attachment', { id: W.pdfId }); must(r.ok, r.error);
+        const back = atob(r.data); must(back.length === pdf.length && back.endsWith(tag), 'content differs'); return { det: back.length + ' bytes match', ms: r._ms };
+      });
+      await check('Calendar: add event and tag personnel', async () => {
+        const r = await call('saveEvent', { title: 'Systems check ' + tag, startDate: T0, endDate: T0, time: '09:00', personnelIds: [W.pid], color: 'sea' }); must(r.ok, r.error); W.eid = r.event.id;
+        const e = await call('events', { from: T0, to: T0 }); must(e.ok && e.events.some(x => x.id === W.eid && x.personnelIds.includes(W.pid)), 'event not listed'); return { ms: r._ms };
+      });
+      await check('Conflict alert when saving leave over a school visit', async () => {
+        const r = await call('saveActivity', { personnelIds: [W.pid], startDate: T0, endDate: T0, type: 'Leave', location: 'Home ' + tag });
+        must(r.ok, r.error); W.leave = r.ids[0];
+        if (!URL_ && !(r.warnings || []).length) return { det: 'the demo backend in this page has no alert engine (the board does)', mark: 'SKIP' };
+        must((r.warnings || []).some(w => w.kind === 'double'), 'no warning returned');
+        return { det: r.warnings[0].text, ms: r._ms };
+      });
+      await check('Audit trail records admin actions', async () => { const r = await call('audit'); must(r.ok && r.rows.length > 0, r.error || 'empty'); return { det: r.rows.length + ' rows', ms: r._ms }; });
+      section('Clean-up');
+      await check('Delete test event', async () => { if (!W.eid) return { mark: 'SKIP' }; const r = await call('deleteEvent', { id: W.eid }); must(r.ok, r.error); return { ms: r._ms }; });
+      await check('Delete test activity + trash its files', async () => { if (!W.aid) return { mark: 'SKIP' }; const r = await call('deleteActivity', { id: W.aid, trashFiles: true }); must(r.ok, r.error); return { ms: r._ms }; });
+      await check('Delete test personnel', async () => { if (!W.pid) return { mark: 'SKIP' }; const r = await call('deletePersonnel', { id: W.pid, withLogs: true }); must(r.ok, r.error); return { ms: r._ms }; });
+      await check('Sign out ends the session', async () => { const tok = T.token; await call('logout'); const r = await call('audit', {}, { token: tok }); must(!r.ok && r.code === 'AUTH', 'token still works after sign-out'); T.token = ''; return { ms: r._ms }; });
+    }
+  }
+
+  /* ---------- load ---------- */
+  section('4 · Load');
+  if (!$('#load').checked) skip('Load test', 'turned off');
+  else await check('10 people open the board at once', async () => {
+    const t0 = performance.now();
+    const rs = await Promise.all(Array.from({ length: 10 }, () => call('boot', { kind: 'window', anchor: T0 })));
+    const bad = rs.filter(r => !r.ok); must(!bad.length, bad.length + ' of 10 failed: ' + (bad[0] && bad[0].error));
+    const ms = rs.map(r => r._ms); const wall = Math.round(performance.now() - t0);
+    return { det: `all 10 ok · median ${pct(ms, 50)} ms · slowest ${Math.max(...ms)} ms`, ms: wall, mark: speed(pct(ms, 90), 5000, 12000) };
+  });
+  done();
+}
+function done() { summary(); $('#run').disabled = false; $('#status').textContent = 'Finished.'; }
+
+$('#run').onclick = () => run().catch(e => { log('fatal: ' + e.message); done(); });
+$('#copy').onclick = async () => {
+  const txt = results.map(r => r.sec ? '\n== ' + r.sec : `[${r.mark}] ${r.name}${r.ms !== '' ? ' (' + r.ms + ' ms)' : ''} — ${r.det}`).join('\n');
+  try { await navigator.clipboard.writeText('CID Waypoint systems check\n' + ($('#sumTxt').textContent || '') + '\n' + txt); $('#status').textContent = 'Report copied.'; }
+  catch (e) { $('#status').textContent = 'Copy blocked — select the table instead.'; }
+};
+})();
+</script>
+</body>
+</html>
